@@ -1,0 +1,156 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vmADName": {
+      "type": "string"
+    },
+    "vmADSize": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountDiagName": {
+      "type": "string"
+    },
+    "nicADName": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dscADModuleUrl": {
+      "type": "string"
+    },
+    "dscADConfigurationFunction": {
+      "type": "string"
+    },
+    "version": {
+      "defaultValue": "2.72",
+      "type": "String"
+    },
+    "wmfVersion": {
+      "defaultValue": "latest",
+      "allowedValues": [
+        "4.0",
+        "5.0",
+        "5.1",
+        "latest"
+      ],
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized AD VM for SP2016 DEV.",
+      "type": "microsoft.compute/virtualmachines",
+      "name": "[parameters('vmADName')]",
+      "apiversion": "2017-03-30",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "hardwareprofile": {
+          "vmsize": "[parameters('vmADSize')]"
+        },
+        "storageprofile": {
+          "imagereference": {
+            "publisher": "microsoftwindowsserver",
+            "offer": "windowsserver",
+            "sku": "2016-datacenter",
+            "version": "latest"
+          },
+          "osdisk": {
+            "ostype": "windows",
+            "name": "[parameters('vmADName')]",
+            "createoption": "fromimage",
+            "caching": "readwrite",
+            "vhd": {
+              "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmADName'),'-osdisk.vhd'))]"
+            }            
+          },
+          "datadisks": [
+            {
+              "name": "[concat(parameters('vmADName'),'-data-disk1')]",
+              "createoption": "empty",
+              "caching": "None",
+              "diskSizeGB": 127,
+              "vhd": {
+                "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmADName'),'-datadisk.vhd'))]"
+              },
+              "lun": 0
+            }
+          ]
+        },
+        "osprofile": {
+          "computername": "[parameters('vmADName')]",
+          "adminusername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsconfiguration": {
+            "provisionvmagent": true,
+            "enableautomaticupdates": true
+          },
+          "secrets": []
+        },
+        "networkprofile": {
+          "networkinterfaces": [
+            {
+              "id": "[resourceid('microsoft.network/networkinterfaces', parameters('nicADName'))]"
+            }
+          ]
+        },
+        "diagnosticsprofile": {
+          "bootdiagnostics": {
+            "enabled": true,
+            "storageuri": "[concat('https', '://', parameters('storageAccountDiagName'), '.blob.core.windows.net', '/')]"
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(parameters('vmADName'),'/InstallDomainController')]",
+          "apiVersion": "2015-06-15",
+          "location": "[parameters('location')]",
+          "dependson": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmADName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "[parameters('version')]",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "ModulesUrl": "[parameters('dscADModuleUrl')]",
+              "ConfigurationFunction": "[parameters('dscADConfigurationFunction')]",
+              "Properties": {
+                "DomainName": "[parameters('domainName')]",
+                "AdminCreds": {
+                  "UserName": "[parameters('adminUsername')]",
+                  "Password": "PrivateSettingsRef:AdminPassword"
+                }
+              },
+              "WmfVersion": "[parameters('wmfVersion')]"
+            },
+            "protectedSettings": {
+              "Items": {
+                "AdminPassword": "[parameters('adminPassword')]"
+              }
+            }
+          }
+        }
+      ]      
+    }
+  ],
+  "outputs": {}
+}

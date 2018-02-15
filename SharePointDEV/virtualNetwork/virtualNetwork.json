@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string"
+    },
+    "vnetAddressRange": {
+      "type": "string"
+    },
+    "subnets": {
+      "type": "array"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized virtual network resource for SP2016 DEV.",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('vnetName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressRange')]"
+          ]
+        },
+        "subnets": "[parameters('subnets')]",
+        "virtualNetworkPeerings": []
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {}
+}

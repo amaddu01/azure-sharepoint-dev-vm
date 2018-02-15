@@ -1,0 +1,149 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vmSPName": {
+      "type": "string"
+    },
+    "vmSPSize": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountDiagName": {
+      "type": "string"
+    },
+    "nicSPName": {
+      "type": "string"
+    },
+    "DNSServerAddress": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dscSPPrepareModuleUrl": {
+      "type": "string"
+    },
+    "dscSPPrepareFunction": {
+      "type": "string"
+    },
+    "version": {
+      "defaultValue": "2.72",
+      "type": "String"
+    },
+    "wmfVersion": {
+      "defaultValue": "latest",
+      "allowedValues": [
+        "4.0",
+        "5.0",
+        "5.1",
+        "latest"
+      ],
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized SP VM resource for SP2016 DEV.",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmSPName')]",
+      "apiVersion": "2017-03-30",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSPSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftSharepoint",
+            "offer": "MicrosoftSharePointServer",
+            "sku": "2016",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[parameters('vmSPName')]",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmSPName'),'-osdisk.vhd'))]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": [
+            {
+              "lun": 0,
+              "name": "[concat(parameters('vmSPName'),'-data-disk-1')]",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmSPName'),'-datadisk-1.vhd'))]"
+              },
+              "caching": "ReadOnly",
+              "diskSizeGB": 1023
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmSPName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": true
+          },
+          "secrets": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicSPName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('https', '://', parameters('storageAccountDiagName'), '.blob.core.windows.net', '/')]"
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(parameters('vmSPName'),'/CreateSPServer')]",
+          "apiVersion": "2015-06-15",
+          "location": "[parameters('location')]",
+          "dependson": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmSPName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "[parameters('version')]",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "ModulesUrl": "[parameters('dscSPPrepareModuleUrl')]",
+              "ConfigurationFunction": "[parameters('dscSPPrepareFunction')]",
+              "Properties": {
+                "DNSServer": "[parameters('DNSServerAddress')]"
+              },
+              "WmfVersion": "[parameters('wmfVersion')]"
+            },
+            "protectedSettings": null
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {}
+}

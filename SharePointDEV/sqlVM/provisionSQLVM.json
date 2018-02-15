@@ -1,0 +1,159 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vmSQLName": {
+      "type": "string"
+    },
+    "vmSQLSize": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageAccountDiagName": {
+      "type": "string"
+    },
+    "nicSQLName": {
+      "type": "string"
+    },
+    "DNSServerAddress": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dscSQLPrepareModuleUrl": {
+      "type": "string"
+    },
+    "dscSQLPrepareFunction": {
+      "type": "string"
+    },
+    "version": {
+      "defaultValue": "2.72",
+      "type": "String"
+    },
+    "wmfVersion": {
+      "defaultValue": "latest",
+      "allowedValues": [
+        "4.0",
+        "5.0",
+        "5.1",
+        "latest"
+      ],
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized SQL Vm for SP2016 DEV.",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmSQLName')]",
+      "apiVersion": "2017-03-30",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSQLSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "SQL2017-WS2016",
+            "sku": "Enterprise",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[parameters('vmSQLName')]",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmSQLName'),'-osdisk.vhd'))]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": [
+            {
+              "lun": 0,
+              "name": "[concat(parameters('vmSQLName'),'-data-disk-1')]",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmSQLName'),'-datadisk-1.vhd'))]"
+              },
+              "caching": "ReadOnly",
+              "diskSizeGB": 1023
+            },
+            {
+              "lun": 1,
+              "name": "[concat(parameters('vmSQLName'),'-log-disk-1')]",
+              "createOption": "Empty",
+              "vhd": {
+                "uri": "[concat('https', '://', parameters('storageAccountName'), '.blob.core.windows.net', concat('/vhds/', parameters('vmSQLName'),'-logdisk-1.vhd'))]"
+              },
+              "caching": "None",
+              "diskSizeGB": 1000
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmSQLName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": true
+          },
+          "secrets": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicSQLName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[concat('https', '://', parameters('storageAccountDiagName'), '.blob.core.windows.net', '/')]"
+          }
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(parameters('vmSQLName'),'/CreateSQLServer')]",
+          "apiVersion": "2015-06-15",
+          "location": "[parameters('location')]",
+          "dependson": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmSQLName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "[parameters('version')]",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "ModulesUrl": "[parameters('dscSQLPrepareModuleUrl')]",
+              "ConfigurationFunction": "[parameters('dscSQLPrepareFunction')]",
+              "Properties": {
+                "DNSServer": "[parameters('DNSServerAddress')]"                
+              },
+              "WmfVersion": "[parameters('wmfVersion')]"
+            },
+            "protectedSettings": null
+          }
+        }
+      ]      
+    }
+  ],
+  "outputs": {}
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "nsgADName": {
+      "type": "string"
+    },
+    "nsgSQLName": {
+      "type": "string"
+    },
+    "nsgSPName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized AD nsg resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('nsgADName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "Generalized SQL nsg resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('nsgSQLName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",
+            "properties": {
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "Generalized SP nsg resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('nsgSPName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {        
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",            
+            "properties": {              
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound",
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }         
+        ]        
+      }      
+    }
+  ],
+  "outputs": {}
+}

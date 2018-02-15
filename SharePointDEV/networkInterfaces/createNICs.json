@@ -1,0 +1,167 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "nicADIPAddress": {
+      "type": "string"
+    },
+    "nicADName": {
+      "type": "string"
+    },
+    "publicipADName": {
+      "type": "string"
+    },
+    "subnetADName": {
+      "type": "string"
+    },
+    "nsgADName": {
+      "type": "string"
+    },
+    "nicSQLName": {
+      "type": "string"
+    },
+    "publicipSQLName": {
+      "type": "string"
+    },
+    "subnetSQLName": {
+      "type": "string"
+    },
+    "nsgSQLName": {
+      "type": "string"
+    },
+    "nicSPName": {
+      "type": "string"
+    },
+    "publicipSPName": {
+      "type": "string"
+    },
+    "subnetSPName": {
+      "type": "string"
+    },
+    "nsgSPName": {
+      "type": "string"
+    },
+    "vnetName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized AD NIC resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicADName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[parameters('nicADIPAddress')]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipADName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetADName'))]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [],
+          "appliedDnsServers": []
+        },
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgADName'))]"
+        },
+        "primary": true
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Generalized SQL NIC resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicSQLName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipSQLName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetSQLName'))]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [],
+          "appliedDnsServers": []
+        },
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgSQLName'))]"
+        },
+        "primary": true
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Generalized AD NIC resource for SP2016 DEV.",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicSPName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {        
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicipSPName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetSPName'))]"
+              },
+              "primary": true,
+              "privateIPAddressVersion": "IPv4"
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": [],
+          "appliedDnsServers": []
+        },
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgSPName'))]"
+        },
+        "primary": true       
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {}
+}

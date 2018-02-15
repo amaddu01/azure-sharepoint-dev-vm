@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "publicipADName": {
+      "type": "string"
+    },
+    "publicipSQLName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Generalized AD public IP resource for SP2016.",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('publicipADName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4
+      },
+      "dependsOn": []
+    },
+    {
+      "comments": "Generalized SQL public IP resource for SP2016.",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('publicipSQLName')]",
+      "apiVersion": "2017-06-01",
+      "location": "[parameters('location')]",
+      "scale": null,
+      "properties": {        
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4
+      },
+      "dependsOn": []
+    }
+  ],
+  "outputs": {
+    "publicipADResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicipADName'))]"
+    },
+    "publicipSQLResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicipSQLName'))]"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "admin"
+    },
+    "adminPassword": {
+      "value": "[password here]"
+    },
+    "spSetupUsername": {
+      "value": "spsetup"
+    },
+    "spSetupUserPassword": {
+      "value": "[password here]"
+    },
+    "sqlServiceAccountUsername": {
+      "value": "spsqlsvc"
+    },
+    "sqlServiceAccountPassword": {
+      "value": "[password here]"
+    },
+    "spFarmAccountUsername": {
+      "value": "spfarm"
+    },
+    "spFarmAccountUserPassword": {
+      "value": "[password here]"
+    },
+    "spFarmPassphrasePassword": {
+      "value": "[password here]"
+    },
+    "spFarmName": {
+      "value": "sp2016-dev"
+    },
+    "spDNSPrefix": {
+      "value": "[SharePoint DNS name]"
+    },
+    "spServicePoolUsername": {
+      "value": "spsvc"
+    },
+    "spServicePoolUserPassword": {
+      "value": "[password here]"
+    },
+    "spWebPoolUsername": {
+      "value": "spweb"
+    },
+    "spWebPoolUserPassword": {
+      "value": "[password here]"
+    }
+  }
+}

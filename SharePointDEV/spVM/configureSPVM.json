@@ -1,0 +1,155 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vmSPName": {
+      "type": "string"
+    },
+    "vmSQLName": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dscSPConfigureModuleUrl": {
+      "type": "string"
+    },
+    "dscSPConfigureFunction": {
+      "type": "string"
+    },
+    "spSetupUsername": {
+      "type": "string"
+    },
+    "spSetupUserPassword": {
+      "type": "securestring"
+    },
+    "spFarmAccountUsername": {
+      "type": "string"
+    },
+    "spFarmAccountUserPassword": {
+      "type": "securestring"
+    },
+    "spFarmPassphrasePassword": {
+      "type": "securestring"
+    },
+    "spFarmName": {
+      "type": "string"
+    },
+    "spConfigDbName": {
+      "type": "string"
+    },
+    "spAdministrationContentDbName": {
+      "type": "string"
+    },
+    "spContentDbName": {
+      "type": "string"
+    },
+    "spFQDN": {
+      "type": "string"
+    },
+    "spSiteTemplateName": {
+      "type": "string"
+    },
+    "spServicePoolUsername": {
+      "type": "string"
+    },
+    "spServicePoolUserPassword": {
+      "type": "securestring"
+    },
+    "spWebPoolUsername": {
+      "type": "string"
+    },
+    "spWebPoolUserPassword": {
+      "type": "securestring"
+    },
+    "version": {
+      "defaultValue": "2.72",
+      "type": "String"
+    },
+    "wmfVersion": {
+      "defaultValue": "latest",
+      "allowedValues": [
+        "4.0",
+        "5.0",
+        "5.1",
+        "latest"
+      ],
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Configure SP Vm for SP2016 DEV.",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmSPName'),'/CreateSPServer')]",
+      "apiVersion": "2015-06-15",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "[parameters('version')]",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "ModulesUrl": "[parameters('dscSPConfigureModuleUrl')]",
+          "ConfigurationFunction": "[parameters('dscSPConfigureFunction')]",
+          "Properties": {
+            "DomainName": "[parameters('domainName')]",
+            "AdminCreds": {
+              "UserName": "[parameters('adminUsername')]",
+              "Password": "PrivateSettingsRef:AdminPassword"
+            },
+            "SharePointSetupUserAccountcreds": {
+              "UserName": "[parameters('spSetupUsername')]",
+              "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
+            },
+            "SharePointFarmAccountcreds": {
+              "UserName": "[parameters('spFarmAccountUsername')]",
+              "Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
+            },
+            "SharePointFarmPassphrasecreds": {
+              "UserName": "ignore",
+              "Password": "PrivateSettingsRef:SharePointFarmPassphrasePassword"
+            },
+            "ServicePoolManagedAccount": {
+              "UserName": "[parameters('spServicePoolUsername')]",
+              "Password": "PrivateSettingsRef:ServicePoolManagedAccountPassword"
+            },
+            "WebPoolManagedAccount": {
+              "UserName": "[parameters('spWebPoolUsername')]",
+              "Password": "PrivateSettingsRef:WebPoolManagedAccountPassword"
+            },
+            "DatabaseName": "[parameters('spConfigDbName')]",
+            "AdministrationContentDatabaseName": "[parameters('spAdministrationContentDbName')]",
+            "DatabaseServer": "[concat(parameters('vmSQLName'),'.',parameters('domainName'))]",
+            "FarmConfigDatabaseName": "[parameters('spConfigDbName')]",
+            "SharePointWebAppName": "[parameters('vmSPName')]",
+            "NetBiosName": "DEV",
+            "Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',parameters('spFQDN'),'\",\"port\":19858}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"',parameters('spFarmName'),'\",\"applicationPool\":\"','spCA',' AppPool\",\"applicationPoolAccount\":\"', parameters('spFarmAccountUsername'),'\",\"url\":\"http://',parameters('spFQDN'),'\",\"port\":80,\"hostHeader\":\"',parameters('spFQDN'),'\",\"databaseName\":\"',parameters('spContentDbName'),'\"},\"site\":{\"name\":\"','DEV','\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',parameters('spFQDN'),'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('spFarmAccountUsername'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('adminUsername'),'\"}}}],\"configureForHa\":\"False\"}')]"
+          },
+          "WmfVersion": "[parameters('wmfVersion')]"
+        },
+        "protectedSettings": {
+          "Items": {
+            "AdminPassword": "[parameters('adminPassword')]",
+            "SharePointSetupUserAccountPassword": "[parameters('spSetupUserPassword')]",
+            "SharePointFarmAccountPassword": "[parameters('spFarmAccountUserPassword')]",
+            "SharePointFarmPassphrasePassword": "[parameters('spFarmPassphrasePassword')]",            
+            "ServicePoolManagedAccountPassword": "[parameters('spServicePoolUserPassword')]",
+            "WebPoolManagedAccountPassword": "[parameters('spWebPoolUserPassword')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

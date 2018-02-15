@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>4f04c696-7ffd-4e2a-a990-857b388c6fe4</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworkIdentifier>Deployment</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>1.0</TargetFrameworkVersion>
+    <PrepareForBuildDependsOn>
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Condition=" Exists('Deployment.targets') " Project="Deployment.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- vertag<:>start tokens<:>maj.min -->
+  <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
+  <!-- vertag<:>end -->
+  <ItemGroup>
+    <None Include="Deployment.targets">
+      <Visible>False</Visible>
+    </None>
+    <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <Content Include="sqlVM\configureSQLVM.json" />
+    <Content Include="storageAccount\setUpStorageAccounts.json" />
+    <Content Include="parameters.json" />
+    <Content Include="template.json" />
+    <Content Include="publicIPs\createPublicIPs.json" />
+    <Content Include="virtualNetwork\virtualNetwork.json" />
+    <Content Include="nsg\nsg.json" />
+    <Content Include="networkInterfaces\createNICs.json" />
+    <Content Include="publicIPs\createSharePointIP.json" />
+    <Content Include="adVM\provisionADVM.json" />
+    <Content Include="dsc\CreateADPDC.ps1.zip" />
+    <Content Include="sqlVM\provisionSQLVM.json" />
+    <Content Include="dsc\PrepareSqlServer.ps1.zip" />
+    <Content Include="spVM\provisionSPVM.json" />
+    <Content Include="dsc\PrepareSharePointServer.ps1.zip" />
+    <Content Include="virtualNetworkDNS\virtualNetworkDNS.json" />
+    <Content Include="dsc\ConfigureSqlServer.ps1.zip" />
+    <Content Include="spVM\configureSPVM.json" />
+    <Content Include="dsc\ConfigureSharePointServer.ps1.zip" />
+    <Content Include="dsc\ConfigureSharePoint.ps1.zip" />
+  </ItemGroup>
+  <Target Name="GetReferenceAssemblyPaths" />
+</Project>

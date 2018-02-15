@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "vmSQLName": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "dscSQLConfigureModuleUrl": {
+      "type": "string"
+    },
+    "dscSQLConfigureFunction": {
+      "type": "string"
+    },
+    "sqlServiceAccountUsername": {
+      "type": "string"
+    },
+    "sqlServiceAccountPassword": {
+      "type": "securestring"
+    },
+    "spSetupUsername": {
+      "type": "string"
+    },
+    "spSetupUserPassword": {
+      "type": "securestring"
+    },
+    "version": {
+      "defaultValue": "2.72",
+      "type": "String"
+    },
+    "wmfVersion": {
+      "defaultValue": "latest",
+      "allowedValues": [
+        "4.0",
+        "5.0",
+        "5.1",
+        "latest"
+      ],
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "comments": "Configure SQL Vm for SP2016 DEV.",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmSQLName'),'/CreateSQLServer')]",
+      "apiVersion": "2015-06-15",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "[parameters('version')]",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "ModulesUrl": "[parameters('dscSQLConfigureModuleUrl')]",
+          "ConfigurationFunction": "[parameters('dscSQLConfigureFunction')]",
+          "Properties": {
+            "DomainName": "[parameters('domainName')]",
+            "AdminCreds": {
+              "UserName": "[parameters('adminUsername')]",
+              "Password": "PrivateSettingsRef:AdminPassword"
+            },
+            "SqlServerServiceAccountcreds": {
+              "UserName": "[parameters('sqlServiceAccountUsername')]",
+              "Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
+            },
+            "SharePointSetupUserAccountcreds": {
+              "UserName": "[parameters('spSetupUsername')]",
+              "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
+            }
+          },
+          "WmfVersion": "[parameters('wmfVersion')]"
+        },
+        "protectedSettings": {
+          "Items": {
+            "AdminPassword": "[parameters('adminPassword')]",
+            "SqlServerServiceAccountPassword": "[parameters('sqlServiceAccountPassword')]",
+            "SharePointSetupUserAccountPassword": "[parameters('spSetupUserPassword')]"
+          }
+        }
+      }     
+    }
+  ],
+  "outputs": {}
+}

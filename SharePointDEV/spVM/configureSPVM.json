@@ -71,6 +71,9 @@
     "spWebPoolUserPassword": {
       "type": "securestring"
     },
+    "netBiosName": {
+      "type": "string"
+    },
     "version": {
       "defaultValue": "2.72",
       "type": "String"
@@ -133,7 +136,7 @@
             "DatabaseServer": "[concat(parameters('vmSQLName'),'.',parameters('domainName'))]",
             "FarmConfigDatabaseName": "[parameters('spConfigDbName')]",
             "SharePointWebAppName": "[parameters('vmSPName')]",
-            "NetBiosName": "DEV",
+            "NetBiosName": "[parameters('netBiosName')]",
             "Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',parameters('spFQDN'),'\",\"port\":19858}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"',parameters('spFarmName'),'\",\"applicationPool\":\"','spCA',' AppPool\",\"applicationPoolAccount\":\"', parameters('spFarmAccountUsername'),'\",\"url\":\"http://',parameters('spFQDN'),'\",\"port\":80,\"hostHeader\":\"',parameters('spFQDN'),'\",\"databaseName\":\"',parameters('spContentDbName'),'\"},\"site\":{\"name\":\"','DEV','\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',parameters('spFQDN'),'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('spFarmAccountUsername'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('adminUsername'),'\"}}}],\"configureForHa\":\"False\"}')]"
           },
           "WmfVersion": "[parameters('wmfVersion')]"

@@ -183,6 +183,10 @@
       "defaultValue": "dev.local",
       "type": "string"
     },
+    "netBiosName": {
+      "defaultValue": "DEV",
+      "type": "string"
+    },
     "spFarmName": {
       "type": "string"
     },
@@ -293,7 +297,7 @@
     "spAdministrationContentDbName": "SP_CentralAdmin",
     "spContentDbName": "WSS_Content_80",
     "spFQDN": "[concat(parameters('spDNSPrefix'),'.',toLower(trim(replace(parameters('location'),' ' ,''))),'.cloudapp.azure.com')]",
-    "spSiteTemplateName": "STS#0"
+    "spSiteTemplateName": "STS#0"    
   },
   "resources": [
 
@@ -890,9 +894,12 @@
           },
           "spWebPoolUserPassword": {
             "value": "[parameters('spWebPoolUserPassword')]"
+          },
+          "netBiosName": {
+            "value": "[parameters('netBiosName')]"
           }
         }
       }
-    }
+    }    
   ]
 }

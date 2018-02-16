@@ -11,3 +11,6 @@ This ARM template uses the following resources:
 - Creates default web application and one site
 
 Note: Instead of using SharePoint 2016 Azure image, we can install SharePoint on blank Windows Server 2016
+
+I used Three VM SharePoint deployment in Azure QuickStart Templates as base reference:
+https://azure.microsoft.com/en-us/resources/templates/sharepoint-three-vm/
